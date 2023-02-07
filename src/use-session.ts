@@ -1,7 +1,7 @@
 import { RealtimeChannel, Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { supaClient } from "./supa-client";
-
+import { useNavigate } from "react-router-dom";
 export interface UserProfile {
     username: string;
     avatarUrl?: string;
@@ -11,7 +11,9 @@ export interface SupabaseUserInfo {
     session: Session | null;
     profile: UserProfile | null;
 }
-
+export const setReturnpath = () => {
+    localStorage.setItem("returnPath", window.location.pathname);
+  };
 
 
 export function useSession(): SupabaseUserInfo{
@@ -21,7 +23,7 @@ export function useSession(): SupabaseUserInfo{
     });
 
     const [channel, setChannel] = useState<RealtimeChannel | null>(null);
-
+    const navigate = useNavigate();
     useEffect(() => {
         supaClient.auth.getSession().then(({data: {session}}) => {
             setUserInfo({ ...userInfo, session });
@@ -52,12 +54,15 @@ export function useSession(): SupabaseUserInfo{
 
     async function listenToUserProfileChanges(userId: string) {
         const { data } = await supaClient
-            .from("user_profiles")
-            .select("*")
-            .filter("user_id", "eq", userId);
-        if (data?.[0]) {
-            setUserInfo({ ...userInfo, profile: data?.[0] });
-        }
+      .from("user_profiles")
+      .select("*")
+      .filter("user_id", "eq", userId);
+      if (data?.[0]) {
+        setUserInfo({ ...userInfo, profile: data?.[0] });
+      } else { // this else clause is all you need to add!
+        setReturnpath();
+        navigate("/welcome");
+      }
         return supaClient
             .channel( `public:user_profiles`)
             .on(

@@ -5,7 +5,7 @@ import MessageBoard from './MessageBoard'
 import AllPosts from './AllPosts'
 import PostView from './PostView'
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
-import Welcome from './Welcome'
+import {Welcome, welcomeLoader} from './Welcome'
 import NavBar from './NavBar'
 import { SupabaseUserInfo, useSession } from './use-session'
 import { createContext } from 'react'
@@ -30,6 +30,7 @@ const router = createBrowserRouter([
     {
       path: "welcome",
       element: <Welcome />,
+      loader: welcomeLoader,
     },
   ],
 
@@ -46,7 +47,7 @@ function App() {
 
 export default App
 
-export const UserContext = createContext<SupabaseUSerInfo>({
+export const UserContext = createContext<SupabaseUserInfo>({
   session: null,
   profile: null,
 
@@ -63,3 +64,4 @@ function Layout() {
   </>
   );
 }
+
